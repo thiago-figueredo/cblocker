@@ -4,10 +4,10 @@ use std::{
     io,
     net::{IpAddr, SocketAddr},
     os::unix::io::AsRawFd,
-    sync::{Arc, RwLock},
+    sync::{Arc, RwLock}, // Arc<RwLock> used for the shared Blocklist
 };
 
-use blocklist::{block_sni, Blocklist};
+use blocklist::Blocklist;
 use tokio::{
     io::{AsyncReadExt, AsyncWriteExt},
     net::{TcpListener, TcpStream},
@@ -92,7 +92,7 @@ async fn handle_client(
     //
     // For this MVP example, we simply connect to port 443
     // on the SNI hostname.
-    relay(client, &sni, &data, blocked).await
+    relay(client, &sni, &data).await
 }
 
 async fn read_client_hello(client: &mut TcpStream) -> io::Result<Vec<u8>> {
@@ -106,7 +106,6 @@ async fn relay(
     mut client: TcpStream,
     sni: &str,
     initial_data: &[u8],
-    blocked: Arc<RwLock<Blocklist>>,
 ) -> io::Result<()> {
     let target = format!("{}:443", sni);
 
@@ -129,10 +128,11 @@ async fn relay(
     let server_to_client = tokio::io::copy(&mut sr, &mut cw);
 
     if let Err(e) = tokio::try_join!(client_to_server, server_to_client) {
-        if e.kind() == io::ErrorKind::BrokenPipe {
-            block_sni(sni, &blocked);
-        } else {
-            return Err(e);
+        match e.kind() {
+            io::ErrorKind::BrokenPipe
+            | io::ErrorKind::ConnectionReset
+            | io::ErrorKind::ConnectionAborted => {}
+            _ => return Err(e),
         }
     }
 

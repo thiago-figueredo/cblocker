@@ -1,8 +1,4 @@
-use std::{
-    collections::HashSet,
-    net::IpAddr,
-    sync::{Arc, RwLock},
-};
+use std::{collections::HashSet, net::IpAddr};
 
 const DOMAINS: &[&str] = &[
     "fatalmodel.com",
@@ -107,14 +103,6 @@ impl Blocklist {
     }
 }
 
-pub fn block_sni(sni: &str, blocked: &Arc<RwLock<Blocklist>>) {
-    let mut bl = blocked.write().unwrap();
-
-    // Only act if not already in the set
-    if bl.domains.insert(sni.to_string()) {
-        println!("[AUTO-BLOCKED] {}", sni);
-    }
-}
 
 pub fn glob_match(pattern: &str, text: &str) -> bool {
     let parts: Vec<&str> = pattern.split('*').collect();
