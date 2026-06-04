@@ -1,0 +1,26 @@
+[Unit]
+Description=cblocker transparent TLS blocker
+After=network.target nftables.service
+
+[Service]
+Type=simple
+User=pornblock
+# + prefix runs this as root regardless of User= so nft has the right permissions
+ExecStartPre=+/usr/local/bin/cblocker-nft
+ExecStart=/usr/local/bin/cblocker
+Restart=always
+RestartSec=1
+
+# Prevent the service from being stopped by non-root
+ProtectSystem=strict
+ProtectHome=true
+
+# Give the process permission to use raw sockets (needed for SO_ORIGINAL_DST)
+AmbientCapabilities=CAP_NET_ADMIN CAP_NET_BIND_SERVICE
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=cblocker
+
+[Install]
+WantedBy=multi-user.target
