@@ -25,6 +25,10 @@ const DOMAINS: &[&str] = &[
     "xvideosbr.blog",
     // br.xhamster.com
     "br.xhamster.com",
+    // travesticomlocal.com.br
+    "travesticomlocal.com.br",
+    // linkgp.com.br
+    "linkgp.com.br",
 ];
 
 // IPs to block via SO_ORIGINAL_DST (catches ECH connections where the SNI is encrypted)
@@ -49,6 +53,16 @@ const IPS: &[&str] = &[
     "104.16.4.81",
     "2606:4700::6810:351",
     "2606:4700::6810:451",
+    // travesticomlocal.com.br
+    "104.20.38.2",
+    "172.66.145.124",
+    "2606:4700:10::6814:2602",
+    "2606:4700:10::ac42:917c",
+    // linkgp.com.br
+    "104.21.50.237",
+    "172.67.213.218",
+    "2606:4700:3033::ac43:d5da",
+    "2606:4700:3037::6815:32ed",
 ];
 
 // Wildcard patterns (* matches any sequence of characters)
